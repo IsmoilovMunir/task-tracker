@@ -1,5 +1,6 @@
 package com.tasktracker.task_tracker.controller;
 
+import com.tasktracker.task_tracker.dto.LoginRequest;
 import com.tasktracker.task_tracker.dto.RegisterRequest;
 import com.tasktracker.task_tracker.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,12 @@ public class AuthController {
     public ResponseEntity<String> createUser(@RequestBody RegisterRequest request){
         authService.register(request);
         return ResponseEntity.ok("User registered successfully");
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody LoginRequest loginRequest){
+        String token = authService.login(loginRequest);
+        return ResponseEntity.ok(token);
     }
 
 }
