@@ -7,6 +7,7 @@ import com.tasktracker.task_tracker.entity.Task;
 import com.tasktracker.task_tracker.entity.User;
 import com.tasktracker.task_tracker.exception.AccessDeniedException;
 import com.tasktracker.task_tracker.exception.ResourceNotFoundException;
+import com.tasktracker.task_tracker.mapper.TaskMapper;
 import com.tasktracker.task_tracker.repository.TaskRepository;
 import com.tasktracker.task_tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.List;
 public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final TaskMapper taskMapper;
 
     public List<TaskDto> getAllTask() {
 
@@ -28,7 +30,7 @@ public class TaskService {
                 new ResourceNotFoundException("User not found"));
         List<Task> tasks = taskRepository.findAllByUserId(user.getId());
         return tasks.stream()
-                .map(this::toDto)
+                .map(taskMapper::toDto)
                 .toList();
     }
 
@@ -44,7 +46,7 @@ public class TaskService {
 
         Task saved = taskRepository.save(task);
 
-        return toDto(saved);
+        return taskMapper.toDto(saved);
     }
 
     public TaskDto updateTask(long taskId, TaskUpdateRequest request) {
@@ -65,7 +67,7 @@ public class TaskService {
         }
 
         Task saved = taskRepository.save(task);
-        return toDto(saved);
+        return taskMapper.toDto(saved);
     }
 
     public void deleteTask(long taskId) {
@@ -79,15 +81,5 @@ public class TaskService {
 
     private String getCurrentUserEmail() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
-    }
-
-    private TaskDto toDto(Task task) {
-        TaskDto dto = new TaskDto();
-        dto.setId(task.getId());
-        dto.setTitle(task.getTitle());
-        dto.setDescription(task.getDescription());
-        dto.setDone(task.getDone());
-        dto.setCreatedAt(task.getCreatedAt());
-        return dto;
     }
 }
