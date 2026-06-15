@@ -5,6 +5,8 @@ import com.tasktracker.task_tracker.dto.TaskRequest;
 import com.tasktracker.task_tracker.dto.TaskUpdateRequest;
 import com.tasktracker.task_tracker.entity.Task;
 import com.tasktracker.task_tracker.entity.User;
+import com.tasktracker.task_tracker.exception.AccessDeniedException;
+import com.tasktracker.task_tracker.exception.ResourceNotFoundException;
 import com.tasktracker.task_tracker.repository.TaskRepository;
 import com.tasktracker.task_tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,17 +22,19 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
 
-    public List<TaskDto> getAllTask( ) {
+    public List<TaskDto> getAllTask() {
 
-        User user = userRepository.findByEmail(getCurrentUserEmail()).orElseThrow();
+        User user = userRepository.findByEmail(getCurrentUserEmail()).orElseThrow(() ->
+                new ResourceNotFoundException("User not found"));
         List<Task> tasks = taskRepository.findAllByUserId(user.getId());
         return tasks.stream()
                 .map(this::toDto)
                 .toList();
     }
 
-    public TaskDto createTask(TaskRequest request){
-        User user = userRepository.findByEmail(getCurrentUserEmail()).orElseThrow();
+    public TaskDto createTask(TaskRequest request) {
+        User user = userRepository.findByEmail(getCurrentUserEmail()).orElseThrow(() ->
+                new ResourceNotFoundException("User not found"));
         Task task = new Task();
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
@@ -40,22 +44,23 @@ public class TaskService {
 
         Task saved = taskRepository.save(task);
 
-        return  toDto(saved);
+        return toDto(saved);
     }
 
-    public TaskDto updateTask(long taskId, TaskUpdateRequest request){
-        Task task = taskRepository.findById(taskId).orElseThrow();
+    public TaskDto updateTask(long taskId, TaskUpdateRequest request) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() ->
+                new ResourceNotFoundException("Task not found"));
 
-        if (!task.getUser().getUsername().equals(getCurrentUserEmail())){
-            throw new RuntimeException("Access denied");
+        if (!task.getUser().getUsername().equals(getCurrentUserEmail())) {
+            throw new AccessDeniedException("Access denied");
         }
-        if (request.getTitle() != null){
+        if (request.getTitle() != null) {
             task.setTitle(request.getTitle());
         }
-        if(request.getDescription() != null){
+        if (request.getDescription() != null) {
             task.setDescription(request.getDescription());
         }
-        if (request.getDone() != null){
+        if (request.getDone() != null) {
             task.setDone(request.getDone());
         }
 
@@ -63,25 +68,26 @@ public class TaskService {
         return toDto(saved);
     }
 
-    public void deleteTask(long taskId){
-        Task task = taskRepository.findById(taskId).orElseThrow();
-        if (!task.getUser().getUsername().equals(getCurrentUserEmail())){
-            throw new RuntimeException(("Access denied"));
+    public void deleteTask(long taskId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() ->
+                new ResourceNotFoundException("Task not found"));
+        if (!task.getUser().getUsername().equals(getCurrentUserEmail())) {
+            throw new AccessDeniedException(("Access denied"));
         }
         taskRepository.delete(task);
     }
 
-    private String getCurrentUserEmail(){
+    private String getCurrentUserEmail() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
-    private TaskDto toDto(Task task){
+    private TaskDto toDto(Task task) {
         TaskDto dto = new TaskDto();
         dto.setId(task.getId());
         dto.setTitle(task.getTitle());
         dto.setDescription(task.getDescription());
         dto.setDone(task.getDone());
         dto.setCreatedAt(task.getCreatedAt());
-        return  dto;
+        return dto;
     }
 }

@@ -2,9 +2,7 @@ package com.tasktracker.task_tracker.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -24,7 +22,7 @@ public class Task {
     private String description;
 
     @Column(name = "done")
-    private Boolean done =false;
+    private Boolean done = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
