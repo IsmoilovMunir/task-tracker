@@ -2,6 +2,7 @@ package com.tasktracker.task_tracker.controller;
 
 import com.tasktracker.task_tracker.dto.TaskDto;
 import com.tasktracker.task_tracker.dto.TaskRequest;
+import com.tasktracker.task_tracker.dto.TaskUpdateRequest;
 import com.tasktracker.task_tracker.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,5 +24,15 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<TaskDto> createTask(@RequestBody TaskRequest request){
         return ResponseEntity.ok(taskService.createTask(request));
+    }
+    @PutMapping("/{id}")
+    public  ResponseEntity<TaskDto> updateTask(@PathVariable Long id, @RequestBody TaskUpdateRequest request){
+        return ResponseEntity.ok(taskService.updateTask(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity <Void> deleteTask(@PathVariable Long id){
+        taskService.deleteTask(id);
+        return ResponseEntity.noContent().build();
     }
 }
