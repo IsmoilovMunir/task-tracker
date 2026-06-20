@@ -22,7 +22,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final KafkaTemplate<String, EmailEventDto> kafkaTemplate;
 
-    public void register(RegisterRequest registerRequest) {
+    public String register(RegisterRequest registerRequest) {
         if (userRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
             throw new EmailAlreadyExistsException("Email already exists");
         }
@@ -37,6 +37,7 @@ public class AuthService {
                 "Спасибо за регистрацию в Task Tracker"
         );
         kafkaTemplate.send("EMAIL_SENDING_TASKS", event);
+        return jwtService.generateToken(user.getEmail());
     }
 
     public String login(LoginRequest loginRequest) {

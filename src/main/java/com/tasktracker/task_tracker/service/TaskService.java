@@ -43,6 +43,7 @@ public class TaskService {
         task.setDone(false);
         task.setCreatedAt(LocalDateTime.now());
         task.setUser(user);
+        task.setUpdateAt(LocalDateTime.now());
 
         Task saved = taskRepository.save(task);
 
@@ -65,7 +66,7 @@ public class TaskService {
         if (request.getDone() != null) {
             task.setDone(request.getDone());
         }
-
+        task.setUpdateAt(LocalDateTime.now());
         Task saved = taskRepository.save(task);
         return taskMapper.toDto(saved);
     }
