@@ -11,6 +11,7 @@ services:
       POSTGRES_DB: tasktracker_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
     environment:
@@ -27,5 +28,13 @@ services:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  frontend:
+    build:
+      context: ../frontend
+    ports:
+      - "8082:80"
+    restart: unless-stopped
+
 volumes:
   postgres_data:
